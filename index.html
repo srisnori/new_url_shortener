@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .output {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+    <p>Enter a long URL to get a shortened URL</p>
+    <input type="text" id="longUrl" placeholder="Enter your URL" size="50">
+    <button onclick="shortenUrl()">Shorten URL</button>
+    
+    <div class="output" id="result"></div>
+
+    <script>
+        const apiUrl = 'https://xyz.execute-api.us-east-1.amazonaws.com/prod/url'; // Replace with your API Gateway URL
+
+        async function shortenUrl() {
+            const longUrl = document.getElementById('longUrl').value;
+            if (!longUrl) {
+                alert("Please enter a URL");
+                return;
+            }
+
+            const shortUrl = generateShortUrl(); // Generate a short URL ID (this can be customized)
+            const body = { longUrl };
+
+            try {
+                const response = await fetch(`${apiUrl}/${shortUrl}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = 
+                        `Short URL created: <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>`;
+                } else {
+                    document.getElementById('result').innerHTML = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function generateShortUrl() {
+            // For simplicity, we'll generate a random short URL (e.g., short1, short2...)
+            return 'short' + Math.floor(Math.random() * 1000);
+        }
+    </script>
+</body>
+</html>
